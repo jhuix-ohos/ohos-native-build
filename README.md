@@ -1,1 +1,1 @@
-A build set of native C/C++ third-party libraries from HarmonyOS. 
+A build set of native C/C++ third-party libraries for HarmonyOS on the Windows|MacOS|Linux platform. 
