@@ -1,0 +1,432 @@
+From 7e841df28a7677326e2081849739ec0b32948210 Mon Sep 17 00:00:00 2001
+From: "jhuix@sohu.com" <jhuix@sohu.com>
+Date: Sat, 19 Oct 2024 11:13:07 +0800
+Subject: [PATCH] Add tdnapi example for HarmonyOS
+
+---
+ example/ohos/CMakeLists.txt      |  49 ++++++
+ example/ohos/td_napi.cpp         | 288 +++++++++++++++++++++++++++++++
+ tdutils/td/utils/port/Stat.cpp   |   4 +-
+ tdutils/td/utils/port/config.h   |   2 +-
+ tdutils/td/utils/port/platform.h |   2 +
+ tdutils/td/utils/port/uname.cpp  |   5 +-
+ 6 files changed, 345 insertions(+), 5 deletions(-)
+ create mode 100644 example/ohos/CMakeLists.txt
+ create mode 100644 example/ohos/td_napi.cpp
+
+diff --git a/example/ohos/CMakeLists.txt b/example/ohos/CMakeLists.txt
+new file mode 100644
+index 000000000..a3679d2ec
+--- /dev/null
++++ b/example/ohos/CMakeLists.txt
+@@ -0,0 +1,49 @@
++cmake_minimum_required(VERSION 3.4.1 FATAL_ERROR)
++
++project(TdHarmony VERSION 1.0 LANGUAGES CXX)
++
++set(TD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
++
++option(TD_OHOS_JSON "Use \"ON\" to build JSON interface.")
++option(TD_OHOS_JSON_NAPI "Use \"ON\" to build NAPI wrapper for JSON API.")
++
++message(STATUS "CMAKE_CROSSCOMPILING is ON, platform is ${CMAKE_SYSTEM_NAME}.")
++
++if (TD_OHOS_JSON)
++  if (CMAKE_CROSSCOMPILING)
++    string(APPEND CMAKE_CXX_FLAGS_RELWITHDEBINFO " -flto=thin -Oz")
++    list(APPEND CMAKE_FIND_ROOT_PATH "${OPENSSL_ROOT_DIR}")
++  endif()
++  add_subdirectory(${TD_DIR} td)
++  return()
++endif()
++
++
++if (CMAKE_CROSSCOMPILING)
++  set(CMAKE_MODULE_PATH "${TD_DIR}/CMake")
++
++  include(TdSetUpCompiler)
++  td_set_up_compiler()
++  string(APPEND CMAKE_CXX_FLAGS_RELWITHDEBINFO " -flto=thin -Oz")
++  list(APPEND CMAKE_FIND_ROOT_PATH "${OPENSSL_ROOT_DIR}")
++  add_subdirectory(${TD_DIR} td)
++
++  set(NATIVE_LIB "tdnapi")
++  add_library(${NATIVE_LIB} SHARED "${TD_DIR}/example/ohos/td_napi.cpp")
++  target_link_libraries(${NATIVE_LIB} PUBLIC libace_napi.z.so libhilog_ndk.z.so)
++  target_include_directories(${NATIVE_LIB} PUBLIC ${TD_DIR})
++
++  if (TD_OHOS_JSON_NAPI)
++    target_link_libraries(${NATIVE_LIB} PRIVATE Td::TdJsonStatic)
++    target_compile_definitions(${NATIVE_LIB} PRIVATE TD_JSON_NAPI=1)
++    # set_target_properties(${NATIVE_LIB} PROPERTIES OUTPUT_NAME "tdjsonnapi")
++  else()
++    target_link_libraries(${NATIVE_LIB} PRIVATE Td::TdStatic)
++  endif()
++
++  add_custom_command(TARGET ${NATIVE_LIB} POST_BUILD
++    COMMAND ${CMAKE_COMMAND} -E rename $<TARGET_FILE:tdnapi> $<TARGET_FILE:tdnapi>.debug
++    COMMAND ${CMAKE_STRIP} --strip-debug --strip-unneeded $<TARGET_FILE:tdnapi>.debug -o $<TARGET_FILE:tdnapi>)
++else()
++  add_subdirectory(${TD_DIR} td)
++endif()
+diff --git a/example/ohos/td_napi.cpp b/example/ohos/td_napi.cpp
+new file mode 100644
+index 000000000..611b3f373
+--- /dev/null
++++ b/example/ohos/td_napi.cpp
+@@ -0,0 +1,288 @@
++#include <string>
++#include <hilog/log.h>  // hilog, need link libhilog_ndk.z.so
++#include "napi/native_api.h"
++#include "td/telegram/td_json_client.h"
++
++static napi_value TdCreate(napi_env env, napi_callback_info info) {
++    int clientId = td_create_client_id();
++    napi_value result;
++    napi_create_int32(env, clientId, &result);
++    return result;
++}
++
++static std::string value2string(napi_env env, napi_value value) {
++    size_t size = 0;
++    napi_get_value_string_utf8(env, value, nullptr, 0, &size);
++    std::string result;
++    result.resize(size + 1);
++    napi_get_value_string_utf8(env, value, &result[0], size + 1, &size);
++    return result;
++}
++
++static napi_value TdSend(napi_env env, napi_callback_info info) {
++    size_t argc = 2;
++    napi_value args[2] = {nullptr};
++
++    napi_get_cb_info(env, info, &argc, args , nullptr, nullptr);
++
++    napi_valuetype valuetype0;
++    napi_typeof(env, args[0], &valuetype0);
++
++    napi_valuetype valuetype1;
++    napi_typeof(env, args[1], &valuetype1);
++
++    int32_t clientId;
++    napi_get_value_int32(env, args[0], &clientId);
++    std::string request = value2string(env, args[1]);
++    td_send(clientId, request.c_str());
++    return nullptr;
++}
++
++static napi_value TdReceive(napi_env env, napi_callback_info info) {
++    size_t argc = 1;
++    napi_value args[1] = {nullptr};
++
++    napi_get_cb_info(env, info, &argc, args , nullptr, nullptr);
++
++    napi_valuetype valuetype0;
++    napi_typeof(env, args[0], &valuetype0);
++    
++    double timeout;
++    napi_get_value_double(env, args[0], &timeout);
++    
++    const char* content = td_receive(timeout);
++    if (content == nullptr) {
++        return nullptr;
++    }
++    
++    napi_value result;
++    if (napi_create_string_utf8(env, content, NAPI_AUTO_LENGTH, &result) != napi_ok) {
++        return nullptr;
++    }
++    
++    return result;
++}
++
++static napi_value TdExecute(napi_env env, napi_callback_info info) {
++    size_t argc = 1;
++    napi_value args[1] = {nullptr};
++
++    napi_get_cb_info(env, info, &argc, args , nullptr, nullptr);
++
++    napi_valuetype valuetype0;
++    napi_typeof(env, args[0], &valuetype0);
++    
++    std::string request = value2string(env, args[0]);
++    const char * content = td_execute(request.c_str());
++    if (content == nullptr) {
++        return nullptr;
++    }
++    
++    napi_value result;
++    if (napi_create_string_utf8(env, content, NAPI_AUTO_LENGTH, &result) != napi_ok) {
++        return nullptr;
++    }
++    
++    return result;
++}
++
++#undef LOG_TAG
++#define LOG_TAG "DLTD"
++#define VERBOSITY_NAME(x) verbosity_##x
++// constexpr int VERBOSITY_NAME(PLAIN) = -1;
++constexpr int VERBOSITY_NAME(FATAL) = 0;
++constexpr int VERBOSITY_NAME(ERROR) = 1;
++constexpr int VERBOSITY_NAME(WARNING) = 2;
++constexpr int VERBOSITY_NAME(INFO) = 3;
++// constexpr int VERBOSITY_NAME(DEBUG) = 4;
++// constexpr int VERBOSITY_NAME(NEVER) = 1024;
++
++static void on_log_message(int verbosityLevel, const char *logMessage) {
++    switch (verbosityLevel) {
++      case VERBOSITY_NAME(FATAL):
++        OH_LOG_FATAL(LOG_APP, "%s", logMessage);
++        break;
++      case VERBOSITY_NAME(ERROR):
++        OH_LOG_ERROR(LOG_APP, "%s", logMessage);
++        break;
++      case VERBOSITY_NAME(WARNING):
++        OH_LOG_WARN(LOG_APP, "%s", logMessage);
++        break;
++      case VERBOSITY_NAME(INFO):
++        OH_LOG_INFO(LOG_APP, "%s", logMessage);
++        break;
++      default:
++        OH_LOG_DEBUG(LOG_APP, "%s", logMessage);
++        break;
++    }
++}
++
++static napi_value TdSetLogVerbosityLevel(napi_env env, napi_callback_info info) {
++    size_t argc = 1;
++    napi_value args[1] = {nullptr};
++
++    napi_get_cb_info(env, info, &argc, args , nullptr, nullptr);
++
++    napi_valuetype valuetype0;
++    napi_typeof(env, args[0], &valuetype0);
++
++    int32_t verbosityLevel;
++    napi_get_value_int32(env, args[0], &verbosityLevel);
++    
++    td_set_log_message_callback(verbosityLevel, on_log_message);
++    return nullptr;
++}
++
++static napi_value TdJsonCreate(napi_env env, napi_callback_info info) {
++    void* clt = td_json_client_create();
++    napi_value result;
++    napi_create_bigint_uint64(env, (int64_t)clt, &result);
++    return result;
++}
++
++static napi_value TdJsonSend(napi_env env, napi_callback_info info) {
++    size_t argc = 2;
++    napi_value args[2] = {nullptr};
++
++    napi_get_cb_info(env, info, &argc, args , nullptr, nullptr);
++
++    napi_valuetype valuetype0;
++    napi_typeof(env, args[0], &valuetype0);
++
++    napi_valuetype valuetype1;
++    napi_typeof(env, args[1], &valuetype1);
++
++    bool lossLess = false;
++    uint64_t client;
++    napi_get_value_bigint_uint64(env, args[0], &client, &lossLess);
++    if (!lossLess) {
++        return nullptr;
++    }
++    
++    std::string request = value2string(env, args[1]);
++    td_json_client_send((void*)client, request.c_str());
++    return nullptr;
++}
++
++static napi_value TdJsonReceive(napi_env env, napi_callback_info info) {
++    size_t argc = 2;
++    napi_value args[2] = {nullptr};
++
++    napi_get_cb_info(env, info, &argc, args , nullptr, nullptr);
++
++    napi_valuetype valuetype0;
++    napi_typeof(env, args[0], &valuetype0);
++
++    napi_valuetype valuetype1;
++    napi_typeof(env, args[1], &valuetype1);
++
++    bool lossLess = false;
++    uint64_t client;
++    napi_get_value_bigint_uint64(env, args[0], &client, &lossLess);
++    if (!lossLess) {
++        return nullptr;
++    }
++    
++    double timeout;
++    napi_get_value_double(env, args[1], &timeout);
++    
++    const char* content = td_json_client_receive((void*)client, timeout);
++    if (content == nullptr) {
++        return nullptr;
++    }
++    
++    napi_value result;
++    if (napi_create_string_utf8(env, content, NAPI_AUTO_LENGTH, &result) != napi_ok) {
++        return nullptr;
++    }
++    
++    return result;
++}
++
++static napi_value TdJsonExecute(napi_env env, napi_callback_info info) {
++    size_t argc = 2;
++    napi_value args[2] = {nullptr};
++
++    napi_get_cb_info(env, info, &argc, args , nullptr, nullptr);
++
++    napi_valuetype valuetype0;
++    napi_typeof(env, args[0], &valuetype0);
++
++    napi_valuetype valuetype1;
++    napi_typeof(env, args[1], &valuetype1);
++
++    bool lossLess = false;
++    uint64_t client;
++    napi_get_value_bigint_uint64(env, args[0], &client, &lossLess);
++    if (!lossLess) {
++        return nullptr;
++    }
++    
++    std::string request = value2string(env, args[1]);
++    const char * content = td_json_client_execute((void*)client, request.c_str());
++    if (content == nullptr) {
++        return nullptr;
++    }
++    
++    napi_value result;
++    if (napi_create_string_utf8(env, content, NAPI_AUTO_LENGTH, &result) != napi_ok) {
++        return nullptr;
++    }
++    
++    return result;
++}
++
++static napi_value TdJsonDestroy(napi_env env, napi_callback_info info) {
++    size_t argc = 1;
++    napi_value args[1] = {nullptr};
++
++    napi_get_cb_info(env, info, &argc, args , nullptr, nullptr);
++
++    napi_valuetype valuetype0;
++    napi_typeof(env, args[0], &valuetype0);
++
++    bool lossLess = false;
++    uint64_t client;
++    napi_get_value_bigint_uint64(env, args[0], &client, &lossLess);
++    if (!lossLess) {
++        return nullptr;
++    }
++    
++    td_json_client_destroy((void*)client);        
++    return nullptr;
++}
++
++EXTERN_C_START
++static napi_value Init(napi_env env, napi_value exports)
++{
++    napi_property_descriptor desc[] = {
++        { "tdCreate", nullptr, TdCreate, nullptr, nullptr, nullptr, napi_default, nullptr },
++        { "tdSend", nullptr, TdSend, nullptr, nullptr, nullptr, napi_default, nullptr },
++        { "tdReceive", nullptr, TdReceive, nullptr, nullptr, nullptr, napi_default, nullptr },
++        { "tdExecute", nullptr, TdExecute, nullptr, nullptr, nullptr, napi_default, nullptr },
++        { "tdSetLogVerbosityLevel", nullptr, TdSetLogVerbosityLevel, nullptr, nullptr, nullptr, napi_default, nullptr },
++        { "tdJsonCreate", nullptr, TdJsonCreate, nullptr, nullptr, nullptr, napi_default, nullptr },
++        { "tdJsonSend", nullptr, TdJsonSend, nullptr, nullptr, nullptr, napi_default, nullptr },
++        { "tdJsonReceive", nullptr, TdJsonReceive, nullptr, nullptr, nullptr, napi_default, nullptr },
++        { "tdJsonExecute", nullptr, TdJsonExecute, nullptr, nullptr, nullptr, napi_default, nullptr },
++        { "tdJsonDestroy", nullptr, TdJsonDestroy, nullptr, nullptr, nullptr, napi_default, nullptr }
++    };
++    napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc);
++    return exports;
++}
++EXTERN_C_END
++
++static napi_module demoModule = {
++    .nm_version = 1,
++    .nm_flags = 0,
++    .nm_filename = nullptr,
++    .nm_register_func = Init,
++    .nm_modname = "tdnapi",
++    .nm_priv = ((void*)0),
++    .reserved = { 0 },
++};
++
++extern "C" __attribute__((constructor)) void RegisterTdjsonModule(void)
++{
++    napi_module_register(&demoModule);
++}
+diff --git a/tdutils/td/utils/port/Stat.cpp b/tdutils/td/utils/port/Stat.cpp
+index acb0c5dd4..997e70f6f 100644
+--- a/tdutils/td/utils/port/Stat.cpp
++++ b/tdutils/td/utils/port/Stat.cpp
+@@ -35,7 +35,7 @@
+ #pragma GCC diagnostic pop
+ #endif
+ 
+-#if TD_ANDROID || TD_TIZEN
++#if TD_ANDROID || TD_TIZEN || TD_OHOS
+ #include <sys/syscall.h>
+ #endif
+ 
+@@ -225,7 +225,7 @@ Result<MemStat> mem_stat() {
+   res.resident_size_peak_ = 0;
+   res.virtual_size_peak_ = 0;
+   return res;
+-#elif TD_LINUX || TD_ANDROID || TD_TIZEN
++#elif TD_LINUX || TD_ANDROID || TD_TIZEN || TD_OHOS
+   TRY_RESULT(fd, FileFd::open("/proc/self/status", FileFd::Read));
+   SCOPE_EXIT {
+     fd.close();
+diff --git a/tdutils/td/utils/port/config.h b/tdutils/td/utils/port/config.h
+index b5c9774c8..52ecb3832 100644
+--- a/tdutils/td/utils/port/config.h
++++ b/tdutils/td/utils/port/config.h
+@@ -16,7 +16,7 @@
+   #define TD_PORT_POSIX 1
+ #endif
+ 
+-#if TD_LINUX || TD_ANDROID || TD_TIZEN
++#if TD_LINUX || TD_ANDROID || TD_TIZEN || TD_OHOS
+   #define TD_POLL_EPOLL 1
+   #define TD_EVENTFD_LINUX 1
+ #elif TD_FREEBSD || TD_OPENBSD || TD_NETBSD
+diff --git a/tdutils/td/utils/port/platform.h b/tdutils/td/utils/port/platform.h
+index 7ca7ee20d..9710b94c8 100644
+--- a/tdutils/td/utils/port/platform.h
++++ b/tdutils/td/utils/port/platform.h
+@@ -39,6 +39,8 @@
+     #define TD_DARWIN_UNKNOWN 1
+   #endif
+   #define TD_DARWIN 1
++#elif defined(OHOS) || defined(__OHOS__)
++  #define TD_OHOS 1
+ #elif defined(ANDROID) || defined(__ANDROID__)
+   #define TD_ANDROID 1
+ #elif defined(TIZEN_DEPRECATION)
+diff --git a/tdutils/td/utils/port/uname.cpp b/tdutils/td/utils/port/uname.cpp
+index 5b9dc855e..ad98c82d5 100644
+--- a/tdutils/td/utils/port/uname.cpp
++++ b/tdutils/td/utils/port/uname.cpp
+@@ -210,8 +210,9 @@ Slice get_operating_system_version() {
+     }
+ #endif
+     LOG(ERROR) << "Failed to identify OS name; use generic one";
+-
+-#if TD_ANDROID
++#if TD_OHOS
++    return "HarmonyOS";
++#elif TD_ANDROID
+     return "Android";
+ #elif TD_TIZEN
+     return "Tizen";
+-- 
+2.34.1.windows.1
+
