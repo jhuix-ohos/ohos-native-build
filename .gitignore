@@ -1,0 +1,8 @@
+**/*build*/
+**/.*.swp
+**/.DS_Store
+**/auto/
+**/__pycache__/
+/dist/
+/libraries/
+/thirdparty/
