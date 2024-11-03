@@ -1,6 +1,7 @@
 def build() :
     return {
         'name': 'tdnapi',
+        'depends': ['openssl'],
         'commands': """
 win:
     if not exist "td" (
