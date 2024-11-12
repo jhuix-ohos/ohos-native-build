@@ -4,7 +4,11 @@ A build set of native C/C++ third-party libraries for HarmonyOS on the Windows|M
 
 ## Build
 
-Download Python >=3 installer from https://www.python.org/downloads/ and install it with adding to PATH.
+- Download Python >=3.7 installer from https://www.python.org/downloads/ and install it with adding to PATH.
+
+- Install meson build on Mac or Linux platform: 
+  
+       python3 -m pip install meson
 
 * Params
 
