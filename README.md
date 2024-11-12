@@ -36,3 +36,32 @@ A build set of native C/C++ third-party libraries for HarmonyOS on the Windows|M
         git clone https://github.com/jhuix-ohos/ohos-native-build.git
         cd ohos-native-build\build
         build --ohos_sdk=$YOUR_OHOS_SDK  --archs=arm64-v8a,x86_64 --libs=zlib,tdnapi
+
+## The supported libraries
+
+|Name|Version|
+|----|----|
+|[zlib](https://github.com/madler/zlib.git)|main|
+|[mozjpeg](https://github.com/mozilla/mozjpeg.git)|main|
+|[opus](https://github.com/xiph/opus.git)|main|
+|[openssl](https://github.com/openssl/openssl/archive/refs/tags/openssl-3.3.2.tar.gz)|3.3.2|
+|[openssl_1_1_1](https://github.com/openssl/openssl.git)|OpenSSL_1_1_1-stable|
+|[openssl_1_0_2](https://github.com/openssl/openssl.git)|OpenSSL_1_0_2-stable|
+|[libyuv](https://chromium.googlesource.com/libyuv/libyuv)|main|
+|[libwebp](https://github.com/webmproject/libwebp.git)|main|
+|[openh264](https://github.com/cisco/openh264.git)|main|
+|[dav1d](https://code.videolan.org/videolan/dav1d.git)|main|
+|[libde265](https://github.com/strukturag/libde265.git)|main|
+|[libvpx](https://github.com/webmproject/libvpx.git)|main|
+|[libjxl](https://github.com/libjxl/libjxl.git)|main|
+|[libavif](https://github.com/AOMediaCodec/libavif.git)|main|
+|[libheif](https://github.com/strukturag/libheif.git)|main|
+|[ffmepg](https://github.com/FFmpeg/FFmpeg.git)|main|
+|[ffmepg](https://github.com/FFmpeg/FFmpeg.git) for telegram|main|
+|tdnapi|[tdlib](https://github.com/tdlib/td.git) main|
+
+## License
+
+[MIT](https://github.com/jhuix-ohos/ohos-native-build/blob/master/LICENSE)
+
+Copyright © 2023-present, Jhuix (Hui Jin) All Rights Reserved.
