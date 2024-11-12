@@ -10,9 +10,9 @@ Download Python >=3 installer from https://www.python.org/downloads/ and install
 
 |name|desc.|
 |----|----|
-|ohos_sdk|HarmonyOS's sdk path. For expamle on windows platform: I:\DevTools\Huawei\OpenHarmony\Sdk\12 |
+|ohos_sdk|HarmonyOS's sdk path. For expamle on windows platform: <br> I:\DevTools\Huawei\OpenHarmony\Sdk\12 |
 |proxy|Proxy address for download or git. |
-|archs|CPU architecture identifier for compiling libraries, separated by commas for multiple CPU architecture. For examples: arm64-v8a,x86_64,armeabi-v7a |
+|archs|CPU architecture identifier for compiling libraries, separated by commas for multiple CPU architecture. For examples: <br> arm64-v8a,x86_64,armeabi-v7a |
 |libs|Library names that need to be compiled, separated by commas for multiple libraries.|
 
 
