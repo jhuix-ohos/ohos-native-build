@@ -1,38 +1,40 @@
 def build() :
     return {
         'name': 'openssl',
+        'src': 'openssl-openssl-3.3.2',
         'commands': """
 win:
-    if not exist "openssl-openssl-3.3.2.tar.gz" (
-      echo "Downloading OpenSSL sources..."
-      powershell -Command "iwr -OutFile ./openssl-openssl-3.3.2.tar.gz https://github.com/openssl/openssl/archive/refs/tags/openssl-3.3.2.tar.gz"
-      tar xzf openssl-openssl-3.3.2.tar.gz
-      rem del openssl-openssl-3.3.2.tar.gz
+    if not exist "%OHOS_LIBSRC%" (
+      if not exist "%OHOS_LIBSRC%.tar.gz" (
+        echo "Downloading OpenSSL sources..."
+        powershell -Command "iwr -OutFile ./%OHOS_LIBSRC%.tar.gz https://github.com/openssl/openssl/archive/refs/tags/openssl-3.3.2.tar.gz"
+      )
+      tar xzf %OHOS_LIBSRC%.tar.gz
     )
     if not exist "output" mkdir output
     cd output
-    if exist "openssl-%ARCH%-build" rmdir /S /Q openssl-%ARCH%-build
-    mkdir openssl-%ARCH%-build
-    cd openssl-%ARCH%-build
+    if exist "%OHOS_LIBNAME%-%ARCH%-build" rmdir /S /Q %OHOS_LIBNAME%-%ARCH%-build
+    mkdir %OHOS_LIBNAME%-%ARCH%-build
+    cd %OHOS_LIBNAME%-%ARCH%-build
 
-    perl ../../openssl-openssl-3.3.2/Configure --prefix=%USED_PREFIX%/openssl/%ARCH% no-shared no-tests %HOST_ARCH%
+    perl ../../%OHOS_LIBSRC%/Configure --prefix=%USED_PREFIX%/%OHOS_LIBNAME%/%ARCH% no-shared no-docs no-tests %HOST_ARCH%
     make %MAKE_THREADS_CNT%
     make install
-    make clean
-unix:
-    if ![ -d "openssl-openssl-3.3.2" ] ; then
-      echo "Downloading OpenSSL sources..."
-      wget -q https://github.com/openssl/openssl/archive/refs/tags/openssl-3.3.2.tar.gz
-      tar xzf openssl-openssl-3.3.2.tar.gz
-      rm -f openssl-openssl-3.3.2.tar.gz
-    fi
-    rm -rf output/openssl-$ARCH-build
-    mkdir -p output/openssl-$ARCH-build
-    cd output/openssl-$ARCH-build
 
-    ../../openssl-openssl-3.3.2/Configure --prefix=$USED_PREFIX/openssl/$ARCH no-shared no-tests $HOST_ARCH
+unix:
+    if ![ -d "$OHOS_LIBSRC" ] ; then
+      if ![ -d "$OHOS_LIBSRC.tar.gz" ] ; then
+        echo "Downloading OpenSSL sources..."
+        wget -q https://github.com/openssl/openssl/archive/refs/tags/openssl-3.3.2.tar.gz -o $OHOS_LIBSRC.tar.gz
+      fi
+      tar xzf $OHOS_LIBSRC.tar.gz
+    fi
+    rm -rf output/$OHOS_LIBNAME-$ARCH-build
+    mkdir -p output/$OHOS_LIBNAME-$ARCH-build
+    cd output/$OHOS_LIBNAME-$ARCH-build
+
+    ../../$OHOS_LIBSRC/Configure --prefix=$USED_PREFIX/$OHOS_LIBNAME/$ARCH no-shared no-docs no-tests $HOST_ARCH
     make $MAKE_THREADS_CNT
     make install
-    make clean
 """
     }

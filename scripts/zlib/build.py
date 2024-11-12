@@ -3,11 +3,9 @@ def build() :
         'name': 'zlib',
         'commands': """
 win:
+    set
     if not exist "zlib" (
       git clone https://github.com/madler/zlib.git
-      cd zlib
-      git checkout 643e17b749
-      cd ..
     )
     if not exist "output" mkdir output
     cd output
@@ -20,7 +18,11 @@ win:
         --prefix=%USED_PREFIX%/zlib/%ARCH%
     make %MAKE_THREADS_CNT%
     make install
-mac:
+    perl ../../zlib/configure ^
+        --static ^
+        --prefix=%USED_PREFIX%/%ARCH%
+    make install
+unix:
     if ![ -d "zlib" ] ; then
       git clone https://github.com/madler/zlib.git
       cd zlib
@@ -36,5 +38,9 @@ mac:
         --prefix=$USED_PREFIX/zlib/$ARCH
     make $MAKE_THREADS_CNT
     make install
+    ../../zlib/configure \\
+        --static \\
+        --prefix=$USED_PREFIX/$ARCH
+    make install    
 """
     }

@@ -1,0 +1,25 @@
+[binaries]
+c = [ohos_sdk + '/native/llvm/bin/clang', '-target', 'aarch64-linux-ohos', '--sysroot=' + ohos_sdk +'/native/sysroot', '-D__MUSL__']
+cpp = [ohos_sdk + '/native/llvm/bin/clang++', '-target', 'aarch64-linux-ohos', '--sysroot=' + ohos_sdk +'/native/sysroot', '-D__MUSL__']
+as = ohos_sdk + '/native/llvm/bin/llvm-as'
+ar = ohos_sdk + '/native/llvm/bin/llvm-ar'
+nm = ohos_sdk + '/native/llvm/bin/llvm-nm'
+ld = ohos_sdk + '/native/llvm/bin/ld.lld'
+strip = ohos_sdk + '/native/llvm/bin/llvm-strip'
+ranlib = ohos_sdk + '/native/llvm/bin/llvm-ranlib'
+objdump = ohos_sdk + '/native/llvm/bin/llvm-objdump'
+objcopy = ohos_sdk + '/native/llvm/bin/llvm-objcopy'
+pkg-config = pkg_path + '/pkg-config'
+[built-in options]
+c_std = 'none'
+c_args = ['-DOHOS_NDK', '-fPIC']
+cpp_args = ['-DOHOS_NDK', '-fPIC']
+[cmake]
+CMAKE_TOOLCHAIN_FILE = ohos_sdk + '/native/build/cmake/ohos.toolchain.cmake'
+CMAKE_MAKE_PROGRAM = ohos_sdk + '/native/build-tools/cmake/bin/ninja.exe'
+[host_machine]
+system = 'linux'
+subsystem = 'ohos'
+cpu_family = 'aarch64'
+cpu = 'aarch64'
+endian = 'little'

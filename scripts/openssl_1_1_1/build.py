@@ -3,28 +3,28 @@ def build() :
         'name': 'openssl_1_1_1',
         'commands': """
 win:
-    if not exist "openssl_1_1_1" (
-      git clone -b OpenSSL_1_1_1-stable https://github.com/openssl/openssl openssl_1_1_1
+    if not exist "%OHOS_LIBSRC%" (
+      git clone -b OpenSSL_1_1_1-stable https://github.com/openssl/openssl %OHOS_LIBSRC%
     )
     if not exist "output" mkdir output
     cd output
-    if exist "openssl_1_1_1-%ARCH%-build" rmdir /S /Q openssl_1_1_1-%ARCH%-build
-    mkdir openssl_1_1_1-%ARCH%-build
-    cd openssl_1_1_1-%ARCH%-build
+    if exist "%OHOS_LIBNAME%-%ARCH%-build" rmdir /S /Q %OHOS_LIBNAME%-%ARCH%-build
+    mkdir open%OHOS_LIBNAME%ssl_1_1_1-%ARCH%-build
+    cd %OHOS_LIBNAME%-%ARCH%-build
 
-    perl ../../openssl_1_1_1/Configure --prefix=%USED_PREFIX%/openssl_1_1_1/%ARCH% no-shared no-tests %HOST_ARCH%
+    perl ../../%OHOS_LIBSRC%/Configure --prefix=%USED_PREFIX%/%OHOS_LIBNAME%/%ARCH% no-shared no-docs no-tests %HOST_ARCH%
     make %MAKE_THREADS_CNT%
     make install
     make clean
 unix:
-    if ![ -d "openssl_1_1_1" ] ; then
-      git clone -b OpenSSL_1_1_1-stable https://github.com/openssl/openssl openssl_1_1_1
+    if ![ -d "$OHOS_LIBSRC" ] ; then
+      git clone -b OpenSSL_1_1_1-stable https://github.com/openssl/openssl $OHOS_LIBSRC
     fi
-    rm -rf output/openssl_1_1_1-$ARCH-build
-    mkdir -p output/openssl_1_1_1-$ARCH-build
-    cd output/openssl_1_1_1-$ARCH-build
+    rm -rf output/$OHOS_LIBNAME-$ARCH-build
+    mkdir -p output/$OHOS_LIBNAME-$ARCH-build
+    cd output/$OHOS_LIBNAME-$ARCH-build
 
-    ../../openssl_1_1_1/Configure --prefix=$USED_PREFIX/openssl_1_1_1/$ARCH no-shared no-tests $HOST_ARCH
+    ../../$OHOS_LIBSRC/Configure --prefix=$USED_PREFIX/$OHOS_LIBNAME/$ARCH no-shared no-docs no-tests $HOST_ARCH
     make $MAKE_THREADS_CNT
     make install
     make clean

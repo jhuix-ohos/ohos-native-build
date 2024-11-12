@@ -1,0 +1,65 @@
+{
+  "apiType": "stageMode",
+  "buildOption": {
+    "nativeLib": {
+      "headerPath": [
+        "./src/main/cpp/td"
+      ],
+      "filter": {
+        // 可通过此选项自定义此cpp产物so是否打包到应用包中
+        "excludes": [
+          // 根据正则表达式排除匹配到的.so文件，匹配到的so文件将不会被打包，可用于打包时缩小包体积
+          "**/libtdjson.so",
+          "**/libtdjson.so.*",
+          // 排除所有名称为“tdjson”的so文件
+        ],
+      }
+    },
+    "externalNativeOptions": {
+      "path": "./src/main/cpp/CMakeLists.txt",
+      "arguments": "-DOHOS_STL=c++_static -DTD_OHOS_JSON_NAPI=1",
+      "cppFlags": "",
+      "abiFilters": [
+        "arm64-v8a",
+        "x86_64"
+      ]
+    }
+  },
+  "buildOptionSet": [
+    {
+      "name": "release",
+      "arkOptions": {
+        "obfuscation": {
+          "ruleOptions": {
+            "enable": false,
+            "files": [
+              "./obfuscation-rules.txt"
+            ]
+          }
+        }
+      },
+      "nativeLib": {
+        "debugSymbol": {
+          "strip": true,
+          "exclude": []
+        }
+      },
+      "externalNativeOptions": {
+        "arguments": "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+      }
+    },
+    {
+      "name": "debug",
+      "externalNativeOptions": {
+      }
+    },
+  ],
+  "targets": [
+    {
+      "name": "default"
+    },
+    {
+      "name": "ohosTest",
+    }
+  ]
+}
