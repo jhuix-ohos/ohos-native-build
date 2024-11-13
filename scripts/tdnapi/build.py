@@ -132,7 +132,7 @@ unix:
           -S td/example/ohos
     cmake --build output/$OHOS_LIBNAME-$ARCH-build --target tdnapi
     cmake --install output/$OHOS_LIBNAME-$ARCH-build --component tdnapi
-    mkdir -p "$USED_PREFIX/harmony/$OHOS_LIBNAME/src"
-    cp -rf "$SCRIPT_DIR/../scripts/$OHOS_LIBNAME/src" "$USED_PREFIX/harmony/$OHOS_LIBNAME/src/"
+    mkdir -p "$USED_PREFIX/harmony/$OHOS_LIBNAME"
+    cp -rf "$SCRIPT_DIR/../scripts/$OHOS_LIBNAME/src" "$USED_PREFIX/harmony/$OHOS_LIBNAME/"
 """
     }
