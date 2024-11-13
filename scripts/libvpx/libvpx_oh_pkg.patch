@@ -1,0 +1,28 @@
+diff --git a/configure b/configure
+index 97e78996e..25a51c0f0 100755
+--- a/configure
++++ b/configure
+@@ -97,6 +97,7 @@ EOF
+ 
+ # all_platforms is a list of all supported target platforms. Maintain
+ # alphabetically by architecture, generic-gnu last.
++all_platforms="${all_platforms} aarch64-linux"
+ all_platforms="${all_platforms} arm64-android-gcc"
+ all_platforms="${all_platforms} arm64-darwin-gcc"
+ all_platforms="${all_platforms} arm64-darwin20-gcc"
+@@ -122,6 +123,7 @@ all_platforms="${all_platforms} armv7-win32-vs16"
+ all_platforms="${all_platforms} armv7-win32-vs17"
+ all_platforms="${all_platforms} armv7s-darwin-gcc"
+ all_platforms="${all_platforms} armv8-linux-gcc"
++all_platforms="${all_platforms} arm-linux"
+ all_platforms="${all_platforms} loongarch32-linux-gcc"
+ all_platforms="${all_platforms} loongarch64-linux-gcc"
+ all_platforms="${all_platforms} mips32-linux-gcc"
+@@ -170,6 +172,7 @@ all_platforms="${all_platforms} x86_64-darwin23-gcc"
+ all_platforms="${all_platforms} x86_64-iphonesimulator-gcc"
+ all_platforms="${all_platforms} x86_64-linux-gcc"
+ all_platforms="${all_platforms} x86_64-linux-icc"
++all_platforms="${all_platforms} x86_64-linux"
+ all_platforms="${all_platforms} x86_64-solaris-gcc"
+ all_platforms="${all_platforms} x86_64-win64-gcc"
+ all_platforms="${all_platforms} x86_64-win64-vs14"

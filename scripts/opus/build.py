@@ -14,7 +14,7 @@ win:
     cmake --install output/%OHOS_LIBNAME%-%ARCH%-build --config Release
     cmake --install output/%OHOS_LIBNAME%-%ARCH%-build --config Release --prefix %USED_PREFIX%/%OHOS_LIBNAME%/%ARCH%
 unix:
-    if ![ -d "$OHOS_LIBSRC" ] ; then
+    if [ ! -d "$OHOS_LIBSRC" ] ; then
       git clone $OHOS_LIBURL
     fi
     cmake -LH \\
@@ -24,7 +24,7 @@ unix:
         -DOHOS_ARCH=$ARCH \\
         -DOHOS_STL=c++_static \\
         -DCMAKE_TOOLCHAIN_FILE="$OHOS_SDK/native/build/cmake/ohos.toolchain.cmake" \\
-        -GNinja -DCMAKE_MAKE_PROGRAM="$OHOS_SDK/native/build-tools/cmake/bin/ninja.exe" \\
+        -GNinja -DCMAKE_MAKE_PROGRAM="$OHOS_SDK/native/build-tools/cmake/bin/ninja" \\
         -DCMAKE_C_FLAGS="-Wno-unused-command-line-argument" \\
         -DCMAKE_CXX_FLAGS="-Wno-unused-command-line-argument" \\
         -Boutput/$OHOS_LIBNAME-$ARCH-build \\

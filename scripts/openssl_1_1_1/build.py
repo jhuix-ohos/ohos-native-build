@@ -17,7 +17,7 @@ win:
     make install
     make clean
 unix:
-    if ![ -d "$OHOS_LIBSRC" ] ; then
+    if [ ! -d "$OHOS_LIBSRC" ] ; then
       git clone -b OpenSSL_1_1_1-stable https://github.com/openssl/openssl $OHOS_LIBSRC
     fi
     rm -rf output/$OHOS_LIBNAME-$ARCH-build

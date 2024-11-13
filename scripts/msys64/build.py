@@ -15,7 +15,7 @@ win:
       msys64.exe
       del msys64.exe
       bash -c "pacman-key --init; pacman-key --populate; pacman -Syu --noconfirm"
-      pacman -Syu --noconfirm unzip gzip gperf make perl-Pod-Parser diffutils git mingw-w64-x86_64-perl mingw-w64-x86_64-meson
+      pacman -Syu --noconfirm unzip gzip gperf make perl-Pod-Parser diffutils git mingw-w64-x86_64-perl mingw-w64-x86_64-meson mingw-w64-x86_64-nasm mingw-w64-x86_64-binutils
     )
     SET PATH=%PATH_BACKUP_%
 """

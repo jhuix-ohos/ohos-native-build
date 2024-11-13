@@ -3,7 +3,6 @@ def build() :
         'name': 'zlib',
         'commands': """
 win:
-    set
     if not exist "zlib" (
       git clone https://github.com/madler/zlib.git
     )
@@ -23,7 +22,7 @@ win:
         --prefix=%USED_PREFIX%/%ARCH%
     make install
 unix:
-    if ![ -d "zlib" ] ; then
+    if [ ! -d "zlib" ] ; then
       git clone https://github.com/madler/zlib.git
       cd zlib
       git checkout 643e17b749

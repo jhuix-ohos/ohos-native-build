@@ -30,25 +30,28 @@ win:
     cmake --install output/%OHOS_LIBNAME%-%ARCH%-build
     cmake --install output/%OHOS_LIBNAME%-%ARCH%-build --prefix %USED_PREFIX%/%OHOS_LIBNAME%/%ARCH%
 unix:
-    if ![ -d "$OHOS_LIBSRC" ] ; then
+    if [ ! -d "$OHOS_LIBSRC" ] ; then
       git clone $OHOS_LIBURL
     fi
 
     export PKG_CONFIG_PATH=$USED_PREFIX/$ARCH/lib/pkgconfig
-    cmake $CMAKE_PREFIX_ARGS ^
-        -DCMAKE_BUILD_TYPE=Release ^
-        -DWEBP_BUILD_ANIM_UTILS=OFF ^
-        -DWEBP_BUILD_CWEBP=OFF ^
-        -DWEBP_BUILD_DWEBP=OFF ^
-        -DWEBP_BUILD_GIF2WEBP=OFF ^
-        -DWEBP_BUILD_IMG2WEBP=OFF ^
-        -DWEBP_BUILD_VWEBP=OFF ^
-        -DWEBP_BUILD_WEBPMUX=OFF ^
-        -DWEBP_BUILD_WEBPINFO=OFF ^
-        -DWEBP_BUILD_EXTRAS=OFF ^
-        -B output/$OHOS_LIBNAME-$ARCH-build ^
+    export
+    cmake $CMAKE_PREFIX_ARGS \\
+        -DCMAKE_C_FLAGS="-Wno-unused-command-line-argument" \\
+        -DCMAKE_CXX_FLAGS="-Wno-unused-command-line-argument" \\
+        -DCMAKE_BUILD_TYPE=Release \\
+        -DWEBP_BUILD_ANIM_UTILS=OFF \\
+        -DWEBP_BUILD_CWEBP=OFF \\
+        -DWEBP_BUILD_DWEBP=OFF \\
+        -DWEBP_BUILD_GIF2WEBP=OFF \\
+        -DWEBP_BUILD_IMG2WEBP=OFF \\
+        -DWEBP_BUILD_VWEBP=OFF \\
+        -DWEBP_BUILD_WEBPMUX=OFF \\
+        -DWEBP_BUILD_WEBPINFO=OFF \\
+        -DWEBP_BUILD_EXTRAS=OFF \\
+        -B output/$OHOS_LIBNAME-$ARCH-build \\
         -S $OHOS_LIBNAME
-    cmake --build output/output/$OHOS_LIBNAME-$ARCH-build $MAKE_THREADS_CNT
-    cmake --install output/output/$OHOS_LIBNAME-$ARCH-build
-    cmake --install output/output/$OHOS_LIBNAME-$ARCH-build --prefix $USED_PREFIX/$OHOS_LIBNAME/$ARCH
+    cmake --build output/$OHOS_LIBNAME-$ARCH-build $MAKE_THREADS_CNT
+    cmake --install output/$OHOS_LIBNAME-$ARCH-build
+    cmake --install output/$OHOS_LIBNAME-$ARCH-build --prefix $USED_PREFIX/$OHOS_LIBNAME/$ARCH
 """}

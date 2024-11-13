@@ -19,6 +19,8 @@ win = (sys.platform == 'win32')
 mac = (sys.platform == 'darwin')
 linux = (sys.platform == 'linux')
 
+print('[STATUS] Build platform is ' + sys.platform)
+
 # if win and not 'Platform' in os.environ:
 #    nativeToolsError()
 
@@ -247,9 +249,9 @@ def filterByPlatform(commands):
             inscope = 'common' in scopes
             if win and 'win' in scopes:
                 inscope = True
-            if mac and ('mac' or 'unix') in scopes:
+            if mac and ('mac' in scopes or 'unix' in scopes):
                 inscope = True
-            if linux and ('linux' or 'unix') in scopes:
+            if linux and ('linux' in scopes or 'unix' in scopes):
                 inscope = True
             if 'release' in scopes:
                 if 'skip-release' in options:
@@ -325,7 +327,7 @@ def genChildEnv(name, src, url, arch=''):
     if len(arch) == 0:
         return env
     
-    buildEnv = ohosenv.setEnv(arch, env['OHOS_SDK'])
+    buildEnv = ohosenv.setEnv(arch, env['OHOS_SDK'], env['USED_PREFIX'])
     for key in buildEnv:
         env[key] = buildEnv[key]
     return env
@@ -360,12 +362,21 @@ def run(name, src, url, commands, isLib):
             runEnv = genChildEnv(name, src, url)
             return subprocess.run('set -e\n' + commands, shell=True, env=runEnv).returncode == 0
         
+        # command = '#!/bin/sh\n' + commands
+        # cmdFile = 'command' + str(hash(command)) +'.sh'
+        # if os.path.exists(cmdFile):
+        #     os.remove(cmdFile)
+        # with open(cmdFile, 'w') as file:
+        #     file.write(command)
         result = False
         for arch in archs.split(','):
             runEnv = genChildEnv(name, src, url, arch)
             result = subprocess.run('set -e\n' + commands, shell=True, env=runEnv).returncode == 0
             if not result:
                 break
+
+        # if result and os.path.exists(cmdFile):
+        #    os.remove(cmdFile)
         return result
 
 # Thanks https://stackoverflow.com/a/510364

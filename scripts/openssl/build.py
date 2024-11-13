@@ -22,10 +22,10 @@ win:
     make install
 
 unix:
-    if ![ -d "$OHOS_LIBSRC" ] ; then
-      if ![ -d "$OHOS_LIBSRC.tar.gz" ] ; then
+    if [ ! -d "$OHOS_LIBSRC" ] ; then
+      if [ ! -d "$OHOS_LIBSRC.tar.gz" ] ; then
         echo "Downloading OpenSSL sources..."
-        wget -q https://github.com/openssl/openssl/archive/refs/tags/openssl-3.3.2.tar.gz -o $OHOS_LIBSRC.tar.gz
+        wget -q https://github.com/openssl/openssl/archive/refs/tags/openssl-3.3.2.tar.gz -O $OHOS_LIBSRC.tar.gz
       fi
       tar xzf $OHOS_LIBSRC.tar.gz
     fi

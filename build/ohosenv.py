@@ -1,6 +1,6 @@
 import sys
 
-def setEnv(arch, sdkDir) :
+def setEnv(arch, sdkDir, prefix) :
     env = {}
     env['ARCH'] = arch
     env['AS'] = sdkDir +'/native/llvm/bin/llvm-as'
@@ -19,24 +19,22 @@ def setEnv(arch, sdkDir) :
     if env['BUILD_OS'] == "win": 
         env['CMAKE_PREFIX_ARGS'] = env['CMAKE_PREFIX_ARGS'] + ' -G"Unix Makefiles"'
         env['CMAKE_PREFIX_ARGS'] = env['CMAKE_PREFIX_ARGS'] \
-                             + ' -DCMAKE_INSTALL_PREFIX=%USED_PREFIX%/%ARCH%' \
-                             + ' -DCMAKE_FIND_ROOT_PATH=%USED_PREFIX%/%ARCH%' \
-                             + ' -DOHOS_ARCH=%ARCH%' \
+                             + ' -DCMAKE_INSTALL_PREFIX=' + prefix + '/' + arch \
+                             + ' -DCMAKE_FIND_ROOT_PATH=' + prefix + '/' + arch \
+                             + ' -DOHOS_ARCH=' + arch \
                              + ' -DOHOS_STL=c++_static' \
-                             + ' -DCMAKE_TOOLCHAIN_FILE="%OHOS_SDK%/native/build/cmake/ohos.toolchain.cmake"' \
-                             + ' -GNinja -DCMAKE_MAKE_PROGRAM="%OHOS_SDK%/native/build-tools/cmake/bin/ninja.exe"' \
-                             + ' -DCMAKE_C_FLAGS="-Wno-unused-command-line-argument -Wno-unused-parameter -Wno-unused-variable"' \
-                             + ' -DCMAKE_CXX_FLAGS="-Wno-unused-command-line-argument -Wno-unused-parameter -Wno-unused-variable"'
+                             + ' -DCMAKE_TOOLCHAIN_FILE="' + sdkDir + '"/native/build/cmake/ohos.toolchain.cmake"' \
+                             + ' -GNinja -DCMAKE_MAKE_PROGRAM="' + sdkDir + '"/native/build-tools/cmake/bin/ninja.exe"' \
+                             + ' -DCMAKE_C_FLAGS="-Wno-unused-command-line-argument"' \
+                             + ' -DCMAKE_CXX_FLAGS="-Wno-unused-command-line-argument"'
     else:
         env['CMAKE_PREFIX_ARGS'] = env['CMAKE_PREFIX_ARGS'] \
-                             + ' -DCMAKE_INSTALL_PREFIX=$USED_PREFIX/$ARCH' \
-                             + ' -DCMAKE_FIND_ROOT_PATH=$USED_PREFIX/$ARCH' \
-                             + ' -DOHOS_ARCH=$ARCH' \
+                             + ' -DCMAKE_INSTALL_PREFIX=' + prefix + '/' + arch \
+                             + ' -DCMAKE_FIND_ROOT_PATH=' + prefix + '/' + arch \
+                             + ' -DOHOS_ARCH=' + arch \
                              + ' -DOHOS_STL=c++_static' \
-                             + ' -DCMAKE_TOOLCHAIN_FILE="$OHOS_SDK/native/build/cmake/ohos.toolchain.cmake"' \
-                             + ' -GNinja -DCMAKE_MAKE_PROGRAM="$OHOS_SDK/native/build-tools/cmake/bin/ninja.exe"' \
-                             + ' -DCMAKE_C_FLAGS="-Wno-unused-command-line-argument -Wno-unused-parameter -Wno-unused-variable"' \
-                             + ' -DCMAKE_CXX_FLAGS="-Wno-unused-command-line-argument -Wno-unused-parameter -Wno-unused-variable"'
+                             + ' -DCMAKE_TOOLCHAIN_FILE=' + sdkDir + '/native/build/cmake/ohos.toolchain.cmake' \
+                             + ' -GNinja -DCMAKE_MAKE_PROGRAM=' + sdkDir + '/native/build-tools/cmake/bin/ninja'
 
     if arch == "armeabi-v7a":
         env['TARGET'] = 'arm'

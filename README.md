@@ -6,9 +6,11 @@ A build set of native C/C++ third-party libraries for HarmonyOS on the Windows|M
 
 - Download Python >=3.7 installer from https://www.python.org/downloads/ and install it with adding to PATH.
 
-- Install meson build on Mac or Linux platform: 
+- Install [meson](https://mesonbuild.com) build on Mac or Linux platform: 
   
        python3 -m pip install meson
+
+- Install [nasm](https://www.nasm.us/) on Mac or Linux platform.      
 
 * Params
 
@@ -27,7 +29,7 @@ A build set of native C/C++ third-party libraries for HarmonyOS on the Windows|M
         cd ohos
         git clone https://github.com/jhuix-ohos/ohos-native-build.git
         cd ohos-native-build\build
-        build --ohos_sdk=%YOUR_OHOS_SDK%  --archs=arm64-v8a,x86_64 --libs=zlib,tdnapi --proxy=http://127.0.0.1:10808
+        build.bat --ohos_sdk=%YOUR_OHOS_SDK%  --archs=arm64-v8a,x86_64 --libs=zlib,tdnapi --proxy=http://127.0.0.1:10808
 
 * Mac or Linux example
 
@@ -35,7 +37,7 @@ A build set of native C/C++ third-party libraries for HarmonyOS on the Windows|M
         cd ohos
         git clone https://github.com/jhuix-ohos/ohos-native-build.git
         cd ohos-native-build\build
-        build --ohos_sdk=$YOUR_OHOS_SDK  --archs=arm64-v8a,x86_64 --libs=zlib,tdnapi
+        ./build.sh --ohos_sdk=$YOUR_OHOS_SDK  --archs=arm64-v8a,x86_64 --libs=zlib,tdnapi
 
 ## The supported libraries
 

@@ -27,25 +27,27 @@ win:
     cmake --install output/%OHOS_LIBNAME%-%ARCH%-build --config MinSizeRel
     cmake --install output/%OHOS_LIBNAME%-%ARCH%-build --config MinSizeRel --prefix %USED_PREFIX%/%OHOS_LIBNAME%/%ARCH%
 unix:
-    if ![ -d "$OHOS_LIBSRC" ] ; then
+    if [ ! -d "$OHOS_LIBSRC" ] ; then
       git clone $OHOS_LIBURL
     fi
     export PKG_CONFIG_PATH=$USED_PREFIX/$ARCH/lib/pkgconfig
-    cmake $CMAKE_PREFIX_ARGS ^
-        -D BUILD_SHARED_LIBS=OFF ^
-        -D BUILD_TESTING=OFF ^
-        -D ENABLE_PLUGIN_LOADING=OFF ^
-        -D WITH_AOM_ENCODER=OFF ^
-        -D WITH_AOM_DECODER=OFF ^
-        -D WITH_X265=OFF ^
-        -D WITH_SvtEnc=OFF ^
-        -D WITH_RAV1E=OFF ^
-        -D WITH_DAV1D=ON ^
-        -D WITH_LIBDE265=ON ^
-        -D WITH_EXAMPLES=OFF ^
-        -B output/$OHOS_LIBNAME-$ARCH-build ^
+    cmake $CMAKE_PREFIX_ARGS \\
+        -DCMAKE_C_FLAGS="-Wno-unused-command-line-argument -Wno-error=unused-parameter -Wno-error=unused-variable" \\
+        -DCMAKE_CXX_FLAGS="-Wno-unused-command-line-argument -Wno-error=unused-parameter -Wno-error=unused-variable" \\
+        -D BUILD_SHARED_LIBS=OFF \\
+        -D BUILD_TESTING=OFF \\
+        -D ENABLE_PLUGIN_LOADING=OFF \\
+        -D WITH_AOM_ENCODER=OFF \\
+        -D WITH_AOM_DECODER=OFF \\
+        -D WITH_X265=OFF \\
+        -D WITH_SvtEnc=OFF \\
+        -D WITH_RAV1E=OFF \\
+        -D WITH_DAV1D=ON \\
+        -D WITH_LIBDE265=ON \\
+        -D WITH_EXAMPLES=OFF \\
+        -B output/$OHOS_LIBNAME-$ARCH-build \\
         -S $OHOS_LIBNAME
-    cmake --build output/output/$OHOS_LIBNAME-$ARCH-build --config MinSizeRel $MAKE_THREADS_CNT
-    cmake --install output/output/$OHOS_LIBNAME-$ARCH-build --config MinSizeRel
-    cmake --install output/output/$OHOS_LIBNAME-$ARCH-build --config MinSizeRel --prefix $USED_PREFIX/$OHOS_LIBNAME/$ARCH
+    cmake --build output/$OHOS_LIBNAME-$ARCH-build --config MinSizeRel $MAKE_THREADS_CNT
+    cmake --install output/$OHOS_LIBNAME-$ARCH-build --config MinSizeRel
+    cmake --install output/$OHOS_LIBNAME-$ARCH-build --config MinSizeRel --prefix $USED_PREFIX/$OHOS_LIBNAME/$ARCH
 """}
