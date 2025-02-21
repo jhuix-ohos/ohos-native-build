@@ -42,7 +42,7 @@ win:
           -Std/example/ohos
     cmake --build output/%OHOS_LIBNAME%-%ARCH%-build --target tdnapi
     cmake --install output/%OHOS_LIBNAME%-%ARCH%-build --component tdnapi
-    xcopy %SCRIPT_DIR%\\..\\scripts\\tdnapi\\src local\\harmony\\%OHOS_LIBNAME%\\src\\ /S /Y
+    xcopy %SCRIPT_DIR%\\..\\scripts\\tdnapi\\src local\\harmony\\%OHOS_LIBNAME%\\ /S /Y
 unix:
     if [ ! -d "$OHOS_LIBSRC" ] ; then
       git clone $OHOS_LIBURL

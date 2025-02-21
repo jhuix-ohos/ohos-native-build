@@ -1,6 +1,5 @@
 # the minimum version of CMake.
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
-project(aigram VERSION 1.8 LANGUAGES CXX C)
 
 set(NATIVERENDER_ROOT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 set(TD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/td)
@@ -31,7 +30,7 @@ target_link_libraries(${NATIVE_LIB} PRIVATE Td::TdJsonStatic)
 target_include_directories(${NATIVE_LIB} PUBLIC $<BUILD_INTERFACE:${TD_DIR}>)
 target_compile_definitions(${NATIVE_LIB} PRIVATE TD_JSON_NAPI=1)
 
-set(COMPONENT ${NATIVE_LIB})
+set(CMAKE_INSTALL_LOCAL_ONLY ON)
 install(TARGETS ${NATIVE_LIB} COMPONENT ${NATIVE_LIB}
   LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 )

@@ -1,12 +1,13 @@
-import { hapTasks } from '@ohos/hvigor-ohos-plugin';
-import { execSync } from 'node:child_process';
 import os from 'os';
+import { existsSync } from 'node:fs';
+import { execSync } from 'node:child_process';
+import { harTasks } from '@ohos/hvigor-ohos-plugin';
 
-let genTLScripts =
+let prebuildScripts =
   'cmake -B src/main/cpp/td/build-gen -S src/main/cpp/td -DTD_GENERATE_SOURCE_FILES=ON && cmake --build src/main/cpp/td/build-gen'
 
 if (os.type() == 'Windows_NT') {
-  genTLScripts = 'set PATH=./src/main/cpp/thirdparty/bin;%PATH% &&' + genTLScripts
+  prebuildScripts = 'set PATH=./src/main/cpp/thirdparty/bin;%PATH% &&' + prebuildScripts
 }
 
 export function prebuildPlugin(str?: string) {
@@ -14,21 +15,27 @@ export function prebuildPlugin(str?: string) {
     pluginId: 'prebuildPlugin',
     apply(pluginContext) {
       pluginContext.registerTask({
-        // 编写自定义任务
-        name: 'prebuild@GenerateBuild',
+        // 预编译自动化生成tl相关的C++文件
+        name: 'prebuild@TdGenerateBuild',
         run: (taskContext) => {
-          console.log('prebuild td generate ...');
-          const res = execSync(genTLScripts, { 'cwd': __dirname });
-          console.log(res.toString());
+          const mtpApiFile = __dirname + '/src/main/cpp/td/td/generate/auto/td/mtproto/mtproto_api.cpp';
+          const tdApiFile = __dirname + '/src/main/cpp/td/td/generate/auto/td/telegram/td_api.cpp';
+          if (!existsSync(mtpApiFile) || !existsSync(tdApiFile)) {
+            console.log('prebuild C++ files of td generating ...');
+            const res = execSync(prebuildScripts, { 'cwd': __dirname });
+            console.log(res.toString());
+          } else {
+            console.log('prebuild C++ files of td already generated.');
+          }
         },
-        // 确认自定义任务插入位置
+        // 任务插入位置为 'default@PreBuild' 前
         postDependencies: ['default@PreBuild']
-      })
+      });
     }
   }
 }
 
 export default {
-  system: hapTasks, /* Built-in plugin of Hvigor. It cannot be modified. */
+  system: harTasks, /* Built-in plugin of Hvigor. It cannot be modified. */
   plugins: [prebuildPlugin()]         /* Custom plugin to extend the functionality of Hvigor. */
 }

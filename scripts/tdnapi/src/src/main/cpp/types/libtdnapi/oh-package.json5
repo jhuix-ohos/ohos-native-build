@@ -2,5 +2,5 @@
   "name": "libtdnapi.so",
   "types": "./Index.d.ts",
   "version": "1.0.0",
-  "description": "Napi Library for tdlib."
+  "description": "Td json for napi library."
 }
